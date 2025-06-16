@@ -1,0 +1,23 @@
+create table public.student_data (
+  student_id uuid not null default gen_random_uuid (),
+  created_at timestamp with time zone not null default now(),
+  gender text null default ''::text,
+  date_of_birth date null,
+  ph_number character varying null,
+  dept_id uuid null default gen_random_uuid (),
+  sem integer null,
+  batch_councellor uuid null default gen_random_uuid (),
+  father_number character varying null,
+  father_email character varying null,
+  mother_number character varying null,
+  first_name text null,
+  last_name text null,
+  email character varying null,
+  student_id_number text not null default ''::text,
+  division text null,
+  batch text null,
+  constraint student_data_pkey primary key (student_id),
+  constraint student_data_student_id_number_key unique (student_id_number),
+  constraint student_data_dept_id_fkey foreign KEY (dept_id) references departments (id),
+  constraint student_data_batch_councellor_fkey foreign KEY (batch_councellor) references users (id)
+) TABLESPACE pg_default;
