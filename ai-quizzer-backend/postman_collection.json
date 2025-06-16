@@ -1,0 +1,475 @@
+{
+  "info": {
+    "name": "AI Quizzer API - Complete Collection",
+    "description": "Complete API collection for AI Quizzer backend microservice with all endpoints and test scenarios",
+    "version": "1.0.0",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "auth": {
+    "type": "bearer",
+    "bearer": [
+      {
+        "key": "token",
+        "value": "{{jwt_token}}",
+        "type": "string"
+      }
+    ]
+  },
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "jwt_token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "quiz_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "user_email",
+      "value": "test@example.com",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "Authentication",
+      "item": [
+        {
+          "name": "Login - Valid Credentials",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has token\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('token');",
+                  "    pm.collectionVariables.set('jwt_token', jsonData.token);",
+                  "});",
+                  "",
+                  "pm.test(\"Response has user info\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('user');",
+                  "    pm.expect(jsonData.user).to.have.property('username');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"student1\",\n  \"password\": \"password123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        },
+        {
+          "name": "Login - Invalid Credentials",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400 for missing fields\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"Error message present\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('error');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"\",\n  \"password\": \"\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "login"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Quiz Management",
+      "item": [
+        {
+          "name": "Generate Quiz - Mathematics",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Quiz generated successfully\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.true;",
+                  "    pm.expect(jsonData).to.have.property('quiz');",
+                  "    pm.collectionVariables.set('quiz_id', jsonData.quiz.id);",
+                  "});",
+                  "",
+                  "pm.test(\"Quiz has correct structure\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    var quiz = jsonData.quiz;",
+                  "    pm.expect(quiz).to.have.property('id');",
+                  "    pm.expect(quiz).to.have.property('title');",
+                  "    pm.expect(quiz).to.have.property('questions');",
+                  "    pm.expect(quiz.questions).to.be.an('array');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"subject\": \"Mathematics\",\n  \"gradeLevel\": \"8\",\n  \"difficulty\": \"medium\",\n  \"questionCount\": 3\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/quiz/generate",
+              "host": ["{{base_url}}"],
+              "path": ["api", "quiz", "generate"]
+            }
+          }
+        },
+        {
+          "name": "Generate Quiz - Science",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"subject\": \"Science\",\n  \"gradeLevel\": \"9\",\n  \"difficulty\": \"easy\",\n  \"questionCount\": 5\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/quiz/generate",
+              "host": ["{{base_url}}"],
+              "path": ["api", "quiz", "generate"]
+            }
+          }
+        },
+        {
+          "name": "Generate Quiz - Invalid Parameters",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 400\", function () {",
+                  "    pm.response.to.have.status(400);",
+                  "});",
+                  "",
+                  "pm.test(\"Error message present\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('error');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"subject\": \"\",\n  \"gradeLevel\": \"\",\n  \"questionCount\": 25\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/quiz/generate",
+              "host": ["{{base_url}}"],
+              "path": ["api", "quiz", "generate"]
+            }
+          }
+        },
+        {
+          "name": "Submit Quiz - Correct Answers",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"Submission successful\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.true;",
+                  "    pm.expect(jsonData).to.have.property('submission');",
+                  "});",
+                  "",
+                  "pm.test(\"Submission has score and feedback\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    var submission = jsonData.submission;",
+                  "    pm.expect(submission).to.have.property('score');",
+                  "    pm.expect(submission).to.have.property('feedback');",
+                  "    pm.expect(submission).to.have.property('percentage');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quizId\": \"{{quiz_id}}\",\n  \"answers\": [\"Option A\", \"Option B\", \"Option C\"],\n  \"studentEmail\": \"{{user_email}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/quiz/submit",
+              "host": ["{{base_url}}"],
+              "path": ["api", "quiz", "submit"]
+            }
+          }
+        },
+        {
+          "name": "Submit Quiz - Sample Math Quiz",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quizId\": \"quiz_sample_math_1\",\n  \"answers\": [\"x = 4\", \"x + 6\", \"2\"],\n  \"studentEmail\": \"{{user_email}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/quiz/submit",
+              "host": ["{{base_url}}"],
+              "path": ["api", "quiz", "submit"]
+            }
+          }
+        },
+        {
+          "name": "Submit Quiz - Invalid Quiz ID",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 404\", function () {",
+                  "    pm.response.to.have.status(404);",
+                  "});",
+                  "",
+                  "pm.test(\"Error message present\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData).to.have.property('error');",
+                  "    pm.expect(jsonData.error).to.include('not found');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"quizId\": \"nonexistent_quiz_id\",\n  \"answers\": [\"Option A\", \"Option B\"]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/quiz/submit",
+              "host": ["{{base_url}}"],
+              "path": ["api", "quiz", "submit"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "Quiz History",
+      "item": [
+        {
+          "name": "Get Quiz History - All",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "pm.test(\"Status code is 200\", function () {",
+                  "    pm.response.to.have.status(200);",
+                  "});",
+                  "",
+                  "pm.test(\"History retrieved successfully\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.expect(jsonData.success).to.be.true;",
+                  "    pm.expect(jsonData).to.have.property('data');",
+                  "    pm.expect(jsonData).to.have.property('pagination');",
+                  "});",
+                  "",
+                  "pm.test(\"Pagination structure correct\", function () {",
+                  "    var jsonData = pm.response.json();",
+                  "    var pagination = jsonData.pagination;",
+                  "    pm.expect(pagination).to.have.property('page');",
+                  "    pm.expect(pagination).to.have.property('limit');",
+                  "    pm.expect(pagination).to.have.property('total');",
+                  "    pm.expect(pagination).to.have.property('totalPages');",
+                  "});"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/quiz/history",
+              "host": ["{{base_url}}"],
+              "path": ["api", "quiz", "history"]
+            }
+          }
+        },
+        {
+          "name": "Get Quiz History - Filtered by Subject",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/quiz/history?subject=Mathematics&page=1&limit=5",
+              "host": ["{{base_url}}"],
+              "path": ["api", "quiz", "history"],
+              "query": [
+                {
+                  "key": "subject",
+                  "value": "Mathematics"
+                },
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "5"
+                }
+              ]
+            }
+          }
+        },
+        {
+          "name": "Get Quiz History - Filtered by Grade and Date Range",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{jwt_token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/quiz/history?grade=8&from=01/01/2024&to=31/12/2024&minMarks=2",
+              "host": ["{{base_url}}"],
+              "path": ["api", "quiz", "history"],
+              "query": [
+                {
+                  "
